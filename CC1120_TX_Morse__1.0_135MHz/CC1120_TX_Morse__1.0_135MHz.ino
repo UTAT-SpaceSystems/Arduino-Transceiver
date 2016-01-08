@@ -229,7 +229,8 @@ char text[] = "HELLO WORLD";
    
 //************************************************************ MAIN LOOP ********************************************************//
 void loop() {
-    if(message_counter==8)
+  //cmd_str(SIDLE,1);
+   /* if(message_counter==8)
        message_counter=0;
        
      for(int i=0x00; i<128; i++){
@@ -243,8 +244,9 @@ void loop() {
    
     cmd_str(STX, 1);
     message_counter=message_counter+1;
-    
-  delay(2780);
+    */
+    reg_write(0x08, 0x0B);
+  delay(10);
 }
 
 

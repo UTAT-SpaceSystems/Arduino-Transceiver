@@ -579,3 +579,7 @@ void test(){
     cmd_str(STX);
                  //put in TX mode
 }
+void test2(){
+	reg_write(0x12,0x12);
+	reg_read(0x12);
+}
