@@ -582,6 +582,9 @@ void test1() //Used for test transmitting
 }
 void test2() //Used for test reading a register
 {
+	cmd_str(SIDLE);
 	reg_write(0x12,0x13);
-	reg_read(0x12);
+	delay_ms(100);
+	if(reg_read(0x12)==0x13)
+		PIN_toggle(30);
 }

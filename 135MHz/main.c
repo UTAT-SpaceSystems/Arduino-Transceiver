@@ -139,7 +139,7 @@ int main(void)
 			
 			//test1();
 			test2();
-			
+			PIN_toggle(LED2);
 			
 			delay_ms(100);
 		}
