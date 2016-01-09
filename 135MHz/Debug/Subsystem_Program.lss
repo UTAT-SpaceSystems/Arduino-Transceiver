@@ -3,27 +3,27 @@ Subsystem_Program.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000021a4  00000000  00000000  00000074  2**1
+  0 .text         00002212  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          00000335  00800100  00800100  00002218  2**0
+  1 .bss          00000335  00800100  00800100  00002286  2**0
                   ALLOC
-  2 .comment      00000030  00000000  00000000  00002218  2**0
+  2 .comment      00000030  00000000  00000000  00002286  2**0
                   CONTENTS, READONLY
-  3 .debug_aranges 00000350  00000000  00000000  00002248  2**0
+  3 .debug_aranges 00000350  00000000  00000000  000022b6  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_info   0000603b  00000000  00000000  00002598  2**0
+  4 .debug_info   0000603b  00000000  00000000  00002606  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_abbrev 0000120e  00000000  00000000  000085d3  2**0
+  5 .debug_abbrev 0000120e  00000000  00000000  00008641  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_line   0000149b  00000000  00000000  000097e1  2**0
+  6 .debug_line   0000149b  00000000  00000000  0000984f  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_frame  00000780  00000000  00000000  0000ac7c  2**2
+  7 .debug_frame  00000780  00000000  00000000  0000acec  2**2
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_str    00000c37  00000000  00000000  0000b3fc  2**0
+  8 .debug_str    00000c37  00000000  00000000  0000b46c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_loc    0000296b  00000000  00000000  0000c033  2**0
+  9 .debug_loc    0000296b  00000000  00000000  0000c0a3  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_ranges 000002d8  00000000  00000000  0000e99e  2**0
+ 10 .debug_ranges 000002d8  00000000  00000000  0000ea0e  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -94,7 +94,7 @@ Disassembly of section .text:
       aa:	b2 07       	cpc	r27, r18
       ac:	e1 f7       	brne	.-8      	; 0xa6 <.do_clear_bss_loop>
       ae:	0e 94 4d 0d 	call	0x1a9a	; 0x1a9a <main>
-      b2:	0c 94 d0 10 	jmp	0x21a0	; 0x21a0 <_exit>
+      b2:	0c 94 07 11 	jmp	0x220e	; 0x220e <_exit>
 
 000000b6 <__bad_interrupt>:
       b6:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -398,7 +398,7 @@ Disassembly of section .text:
      38c:	e0 c5       	rjmp	.+3008   	; 0xf4e <__stack+0x64f>
      38e:	e2 5c       	subi	r30, 0xC2	; 194
      390:	ff 4f       	sbci	r31, 0xFF	; 255
-     392:	0c 94 ca 10 	jmp	0x2194	; 0x2194 <__tablejump2__>
+     392:	0c 94 01 11 	jmp	0x2202	; 0x2202 <__tablejump2__>
      396:	16 96       	adiw	r26, 0x06	; 6
      398:	8c 91       	ld	r24, X
      39a:	16 97       	sbiw	r26, 0x06	; 6
@@ -3283,7 +3283,7 @@ static void io_init(void)
 	if (SELF_ID == 0)
 	{
 		transceiver_initialize();
-    1c1c:	0e 94 f6 0f 	call	0x1fec	; 0x1fec <transceiver_initialize>
+    1c1c:	0e 94 19 10 	call	0x2032	; 0x2032 <transceiver_initialize>
 		coms_timer_init();
     1c20:	0e 94 45 0d 	call	0x1a8a	; 0x1a8a <coms_timer_init>
 	}
@@ -3301,8 +3301,8 @@ static void io_init(void)
 			//	trans_check();		// Check for incoming packets.	
 			//check_obc_alive();
 			//test();
-			test2();
-    1c2e:	0e 94 c2 10 	call	0x2184	; 0x2184 <test2>
+			test();
+    1c2e:	0e 94 e5 10 	call	0x21ca	; 0x21ca <test>
 			delay_ms(100);
     1c32:	84 e6       	ldi	r24, 0x64	; 100
     1c34:	90 e0       	ldi	r25, 0x00	; 0
@@ -3783,426 +3783,513 @@ void reg_write2F(uint8_t addr, uint8_t data)		// Doesn't need to return anything
     1f4c:	cf 91       	pop	r28
     1f4e:	08 95       	ret
 
-00001f50 <reg_write_bit>:
+00001f50 <dir_FIFO_write>:
+/*	on the CC1120's FIFO and a byte of data which is written to the FIFO*/
+/*																		*/
+/************************************************************************/
+
+void dir_FIFO_write(uint8_t addr, uint8_t data)
+{
+    1f50:	cf 93       	push	r28
+    1f52:	df 93       	push	r29
+    1f54:	d8 2f       	mov	r29, r24
+    1f56:	c6 2f       	mov	r28, r22
+	cmd_str(SNOP);
+    1f58:	8d e3       	ldi	r24, 0x3D	; 61
+    1f5a:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
+	uint8_t msg;
+	msg = 0b00111110;
+	
+	SS_set_low();
+    1f5e:	0e 94 bf 0e 	call	0x1d7e	; 0x1d7e <SS_set_low>
+	spi_transfer(msg);
+    1f62:	8e e3       	ldi	r24, 0x3E	; 62
+    1f64:	0e 94 93 0e 	call	0x1d26	; 0x1d26 <spi_transfer>
+	delay_us(1);
+    1f68:	81 e0       	ldi	r24, 0x01	; 1
+    1f6a:	90 e0       	ldi	r25, 0x00	; 0
+    1f6c:	0e 94 fa 0e 	call	0x1df4	; 0x1df4 <delay_us>
+	msg = spi_transfer(addr);		// Send the desired address
+    1f70:	8d 2f       	mov	r24, r29
+    1f72:	0e 94 93 0e 	call	0x1d26	; 0x1d26 <spi_transfer>
+	delay_us(1);
+    1f76:	81 e0       	ldi	r24, 0x01	; 1
+    1f78:	90 e0       	ldi	r25, 0x00	; 0
+    1f7a:	0e 94 fa 0e 	call	0x1df4	; 0x1df4 <delay_us>
+	msg = spi_transfer(data);		// Send the desired data
+    1f7e:	8c 2f       	mov	r24, r28
+    1f80:	0e 94 93 0e 	call	0x1d26	; 0x1d26 <spi_transfer>
+	SS_set_high();
+    1f84:	0e 94 a0 0e 	call	0x1d40	; 0x1d40 <SS_set_high>
+	delay_ms(1);
+    1f88:	81 e0       	ldi	r24, 0x01	; 1
+    1f8a:	90 e0       	ldi	r25, 0x00	; 0
+    1f8c:	0e 94 0c 0f 	call	0x1e18	; 0x1e18 <delay_ms>
+	
+	return;
+}
+    1f90:	df 91       	pop	r29
+    1f92:	cf 91       	pop	r28
+    1f94:	08 95       	ret
+
+00001f96 <reg_write_bit>:
 /*		address on the CC1120 transceiver (non-extended address)		*/
 /*																		*/
 /************************************************************************/
 
 void reg_write_bit(uint8_t reg, uint8_t n, uint8_t data)
 {
-    1f50:	1f 93       	push	r17
-    1f52:	cf 93       	push	r28
-    1f54:	df 93       	push	r29
-    1f56:	c8 2f       	mov	r28, r24
-    1f58:	d6 2f       	mov	r29, r22
-    1f5a:	14 2f       	mov	r17, r20
+    1f96:	1f 93       	push	r17
+    1f98:	cf 93       	push	r28
+    1f9a:	df 93       	push	r29
+    1f9c:	c8 2f       	mov	r28, r24
+    1f9e:	d6 2f       	mov	r29, r22
+    1fa0:	14 2f       	mov	r17, r20
 	uint8_t msg, temp;
 	msg = reg_read(reg);
-    1f5c:	0e 94 29 0f 	call	0x1e52	; 0x1e52 <reg_read>
+    1fa2:	0e 94 29 0f 	call	0x1e52	; 0x1e52 <reg_read>
 	if(!data)
-    1f60:	11 11       	cpse	r17, r1
-    1f62:	0c c0       	rjmp	.+24     	; 0x1f7c <reg_write_bit+0x2c>
+    1fa6:	11 11       	cpse	r17, r1
+    1fa8:	0c c0       	rjmp	.+24     	; 0x1fc2 <reg_write_bit+0x2c>
 	{
 		temp = ~(1 << n);
-    1f64:	e1 e0       	ldi	r30, 0x01	; 1
-    1f66:	f0 e0       	ldi	r31, 0x00	; 0
-    1f68:	af 01       	movw	r20, r30
-    1f6a:	02 c0       	rjmp	.+4      	; 0x1f70 <reg_write_bit+0x20>
-    1f6c:	44 0f       	add	r20, r20
-    1f6e:	55 1f       	adc	r21, r21
-    1f70:	da 95       	dec	r29
-    1f72:	e2 f7       	brpl	.-8      	; 0x1f6c <reg_write_bit+0x1c>
-    1f74:	40 95       	com	r20
+    1faa:	e1 e0       	ldi	r30, 0x01	; 1
+    1fac:	f0 e0       	ldi	r31, 0x00	; 0
+    1fae:	af 01       	movw	r20, r30
+    1fb0:	02 c0       	rjmp	.+4      	; 0x1fb6 <reg_write_bit+0x20>
+    1fb2:	44 0f       	add	r20, r20
+    1fb4:	55 1f       	adc	r21, r21
+    1fb6:	da 95       	dec	r29
+    1fb8:	e2 f7       	brpl	.-8      	; 0x1fb2 <reg_write_bit+0x1c>
+    1fba:	40 95       	com	r20
 		msg = temp & msg;
-    1f76:	68 2f       	mov	r22, r24
-    1f78:	64 23       	and	r22, r20
-    1f7a:	0a c0       	rjmp	.+20     	; 0x1f90 <reg_write_bit+0x40>
+    1fbc:	68 2f       	mov	r22, r24
+    1fbe:	64 23       	and	r22, r20
+    1fc0:	0a c0       	rjmp	.+20     	; 0x1fd6 <reg_write_bit+0x40>
 	}
 	else
 	{
 		temp = 1 << n;
-    1f7c:	41 e0       	ldi	r20, 0x01	; 1
-    1f7e:	50 e0       	ldi	r21, 0x00	; 0
-    1f80:	9a 01       	movw	r18, r20
-    1f82:	02 c0       	rjmp	.+4      	; 0x1f88 <reg_write_bit+0x38>
-    1f84:	22 0f       	add	r18, r18
-    1f86:	33 1f       	adc	r19, r19
-    1f88:	da 95       	dec	r29
-    1f8a:	e2 f7       	brpl	.-8      	; 0x1f84 <reg_write_bit+0x34>
+    1fc2:	41 e0       	ldi	r20, 0x01	; 1
+    1fc4:	50 e0       	ldi	r21, 0x00	; 0
+    1fc6:	9a 01       	movw	r18, r20
+    1fc8:	02 c0       	rjmp	.+4      	; 0x1fce <reg_write_bit+0x38>
+    1fca:	22 0f       	add	r18, r18
+    1fcc:	33 1f       	adc	r19, r19
+    1fce:	da 95       	dec	r29
+    1fd0:	e2 f7       	brpl	.-8      	; 0x1fca <reg_write_bit+0x34>
 		msg = temp | msg;
-    1f8c:	68 2f       	mov	r22, r24
-    1f8e:	62 2b       	or	r22, r18
+    1fd2:	68 2f       	mov	r22, r24
+    1fd4:	62 2b       	or	r22, r18
 	}
 	reg_write(reg, msg);
-    1f90:	8c 2f       	mov	r24, r28
-    1f92:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    1fd6:	8c 2f       	mov	r24, r28
+    1fd8:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	return;
 }
-    1f96:	df 91       	pop	r29
-    1f98:	cf 91       	pop	r28
-    1f9a:	1f 91       	pop	r17
-    1f9c:	08 95       	ret
+    1fdc:	df 91       	pop	r29
+    1fde:	cf 91       	pop	r28
+    1fe0:	1f 91       	pop	r17
+    1fe2:	08 95       	ret
 
-00001f9e <reg_write_bit2F>:
+00001fe4 <reg_write_bit2F>:
 /*		address on the CC1120 transceiver (extended address)			*/
 /*																		*/
 /************************************************************************/
 
 void reg_write_bit2F(uint8_t reg, uint8_t n, uint8_t data)
 {
-    1f9e:	1f 93       	push	r17
-    1fa0:	cf 93       	push	r28
-    1fa2:	df 93       	push	r29
-    1fa4:	c8 2f       	mov	r28, r24
-    1fa6:	d6 2f       	mov	r29, r22
-    1fa8:	14 2f       	mov	r17, r20
+    1fe4:	1f 93       	push	r17
+    1fe6:	cf 93       	push	r28
+    1fe8:	df 93       	push	r29
+    1fea:	c8 2f       	mov	r28, r24
+    1fec:	d6 2f       	mov	r29, r22
+    1fee:	14 2f       	mov	r17, r20
 	uint8_t msg, temp;
 	msg = reg_read2F(reg);
-    1faa:	0e 94 5b 0f 	call	0x1eb6	; 0x1eb6 <reg_read2F>
+    1ff0:	0e 94 5b 0f 	call	0x1eb6	; 0x1eb6 <reg_read2F>
 	if(!data)
-    1fae:	11 11       	cpse	r17, r1
-    1fb0:	0c c0       	rjmp	.+24     	; 0x1fca <reg_write_bit2F+0x2c>
+    1ff4:	11 11       	cpse	r17, r1
+    1ff6:	0c c0       	rjmp	.+24     	; 0x2010 <reg_write_bit2F+0x2c>
 	{
 		temp = ~(1 << n);
-    1fb2:	e1 e0       	ldi	r30, 0x01	; 1
-    1fb4:	f0 e0       	ldi	r31, 0x00	; 0
-    1fb6:	af 01       	movw	r20, r30
-    1fb8:	02 c0       	rjmp	.+4      	; 0x1fbe <reg_write_bit2F+0x20>
-    1fba:	44 0f       	add	r20, r20
-    1fbc:	55 1f       	adc	r21, r21
-    1fbe:	da 95       	dec	r29
-    1fc0:	e2 f7       	brpl	.-8      	; 0x1fba <reg_write_bit2F+0x1c>
-    1fc2:	40 95       	com	r20
+    1ff8:	e1 e0       	ldi	r30, 0x01	; 1
+    1ffa:	f0 e0       	ldi	r31, 0x00	; 0
+    1ffc:	af 01       	movw	r20, r30
+    1ffe:	02 c0       	rjmp	.+4      	; 0x2004 <reg_write_bit2F+0x20>
+    2000:	44 0f       	add	r20, r20
+    2002:	55 1f       	adc	r21, r21
+    2004:	da 95       	dec	r29
+    2006:	e2 f7       	brpl	.-8      	; 0x2000 <reg_write_bit2F+0x1c>
+    2008:	40 95       	com	r20
 		msg = temp & msg;
-    1fc4:	68 2f       	mov	r22, r24
-    1fc6:	64 23       	and	r22, r20
-    1fc8:	0a c0       	rjmp	.+20     	; 0x1fde <reg_write_bit2F+0x40>
+    200a:	68 2f       	mov	r22, r24
+    200c:	64 23       	and	r22, r20
+    200e:	0a c0       	rjmp	.+20     	; 0x2024 <reg_write_bit2F+0x40>
 	}
 	else
 	{
 		temp = 1 << n;
-    1fca:	41 e0       	ldi	r20, 0x01	; 1
-    1fcc:	50 e0       	ldi	r21, 0x00	; 0
-    1fce:	9a 01       	movw	r18, r20
-    1fd0:	02 c0       	rjmp	.+4      	; 0x1fd6 <reg_write_bit2F+0x38>
-    1fd2:	22 0f       	add	r18, r18
-    1fd4:	33 1f       	adc	r19, r19
-    1fd6:	da 95       	dec	r29
-    1fd8:	e2 f7       	brpl	.-8      	; 0x1fd2 <reg_write_bit2F+0x34>
+    2010:	41 e0       	ldi	r20, 0x01	; 1
+    2012:	50 e0       	ldi	r21, 0x00	; 0
+    2014:	9a 01       	movw	r18, r20
+    2016:	02 c0       	rjmp	.+4      	; 0x201c <reg_write_bit2F+0x38>
+    2018:	22 0f       	add	r18, r18
+    201a:	33 1f       	adc	r19, r19
+    201c:	da 95       	dec	r29
+    201e:	e2 f7       	brpl	.-8      	; 0x2018 <reg_write_bit2F+0x34>
 		msg = temp | msg;
-    1fda:	68 2f       	mov	r22, r24
-    1fdc:	62 2b       	or	r22, r18
+    2020:	68 2f       	mov	r22, r24
+    2022:	62 2b       	or	r22, r18
 	}
 	reg_write2F(reg, msg);
-    1fde:	8c 2f       	mov	r24, r28
-    1fe0:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    2024:	8c 2f       	mov	r24, r28
+    2026:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	return;
 }
-    1fe4:	df 91       	pop	r29
-    1fe6:	cf 91       	pop	r28
-    1fe8:	1f 91       	pop	r17
-    1fea:	08 95       	ret
+    202a:	df 91       	pop	r29
+    202c:	cf 91       	pop	r28
+    202e:	1f 91       	pop	r17
+    2030:	08 95       	ret
 
-00001fec <transceiver_initialize>:
+00002032 <transceiver_initialize>:
 
 #include "trans_lib.h"
 int message_counter=0;
 uint8_t message[128];
 void transceiver_initialize(void)
 {
-    1fec:	25 eb       	ldi	r18, 0xB5	; 181
-    1fee:	33 e0       	ldi	r19, 0x03	; 3
-    1ff0:	85 e3       	ldi	r24, 0x35	; 53
-    1ff2:	94 e0       	ldi	r25, 0x04	; 4
-    1ff4:	f9 01       	movw	r30, r18
-    1ff6:	4e 2f       	mov	r20, r30
-    1ff8:	42 1b       	sub	r20, r18
+    2032:	25 eb       	ldi	r18, 0xB5	; 181
+    2034:	33 e0       	ldi	r19, 0x03	; 3
+    2036:	85 e3       	ldi	r24, 0x35	; 53
+    2038:	94 e0       	ldi	r25, 0x04	; 4
+    203a:	f9 01       	movw	r30, r18
+    203c:	4e 2f       	mov	r20, r30
+    203e:	42 1b       	sub	r20, r18
 	for(uint8_t i=0;i<128;i++)
 		message[i]=i;
-    1ffa:	41 93       	st	Z+, r20
+    2040:	41 93       	st	Z+, r20
 #include "trans_lib.h"
 int message_counter=0;
 uint8_t message[128];
 void transceiver_initialize(void)
 {
 	for(uint8_t i=0;i<128;i++)
-    1ffc:	e8 17       	cp	r30, r24
-    1ffe:	f9 07       	cpc	r31, r25
-    2000:	d1 f7       	brne	.-12     	; 0x1ff6 <transceiver_initialize+0xa>
+    2042:	e8 17       	cp	r30, r24
+    2044:	f9 07       	cpc	r31, r25
+    2046:	d1 f7       	brne	.-12     	; 0x203c <transceiver_initialize+0xa>
 void set_CSn(uint8_t state)
 {
 	if(state)
 		SS_set_high();
 	else
 		SS_set_low();
-    2002:	0e 94 bf 0e 	call	0x1d7e	; 0x1d7e <SS_set_low>
+    2048:	0e 94 bf 0e 	call	0x1d7e	; 0x1d7e <SS_set_low>
 	set_CSn(0);
 	
 	// Don't need the while loop that was here.
 	  
 	//RESET 
     cmd_str(SRES);             //SRES                  reset chip
-    2006:	80 e3       	ldi	r24, 0x30	; 48
-    2008:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
+    204c:	80 e3       	ldi	r24, 0x30	; 48
+    204e:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
       
     //Reset RX FIFO
     cmd_str(SFRX);             //SFRX                  flush RX FIFO
-    200c:	8a e3       	ldi	r24, 0x3A	; 58
-    200e:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
+    2052:	8a e3       	ldi	r24, 0x3A	; 58
+    2054:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
       
     //Reset TX FIFO
     cmd_str(SFTX);             //SFTX                  flush TX FIFO
-    2012:	8b e3       	ldi	r24, 0x3B	; 59
-    2014:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
+    2058:	8b e3       	ldi	r24, 0x3B	; 59
+    205a:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
 
 	//**************SET UP RX****************//
   
 	//high performance settings
 	reg_write2F(0x12, 0x00);          //FS_DIG1: 0x00         Frequency Synthesizer Digital Reg. 1
-    2018:	60 e0       	ldi	r22, 0x00	; 0
-    201a:	82 e1       	ldi	r24, 0x12	; 18
-    201c:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    205e:	60 e0       	ldi	r22, 0x00	; 0
+    2060:	82 e1       	ldi	r24, 0x12	; 18
+    2062:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	reg_write2F(0x13, 0x5F);          //FS_DIG0: 0x5F         Frequency Synthesizer Digital Reg. 0
-    2020:	6f e5       	ldi	r22, 0x5F	; 95
-    2022:	83 e1       	ldi	r24, 0x13	; 19
-    2024:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    2066:	6f e5       	ldi	r22, 0x5F	; 95
+    2068:	83 e1       	ldi	r24, 0x13	; 19
+    206a:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	reg_write2F(0x16, 0x40);          //FS_CAL1: 0x40         Frequency Synthesizer Calibration Reg. 1
-    2028:	60 e4       	ldi	r22, 0x40	; 64
-    202a:	86 e1       	ldi	r24, 0x16	; 22
-    202c:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    206e:	60 e4       	ldi	r22, 0x40	; 64
+    2070:	86 e1       	ldi	r24, 0x16	; 22
+    2072:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	reg_write2F(0x17, 0x0E);          //FS_CAL0: 0x0E         Frequency Synthesizer Calibration Reg. 0
-    2030:	6e e0       	ldi	r22, 0x0E	; 14
-    2032:	87 e1       	ldi	r24, 0x17	; 23
-    2034:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    2076:	6e e0       	ldi	r22, 0x0E	; 14
+    2078:	87 e1       	ldi	r24, 0x17	; 23
+    207a:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	reg_write2F(0x19, 0x03);          //FS_DIVTWO: 0x03       Frequency Synthesizer Divide by 2
-    2038:	63 e0       	ldi	r22, 0x03	; 3
-    203a:	89 e1       	ldi	r24, 0x19	; 25
-    203c:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    207e:	63 e0       	ldi	r22, 0x03	; 3
+    2080:	89 e1       	ldi	r24, 0x19	; 25
+    2082:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	reg_write2F(0x1B, 0x33);          //FS_DSM0: 0x33         FS Digital Synthesizer Module Configuration Reg. 0
-    2040:	63 e3       	ldi	r22, 0x33	; 51
-    2042:	8b e1       	ldi	r24, 0x1B	; 27
-    2044:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    2086:	63 e3       	ldi	r22, 0x33	; 51
+    2088:	8b e1       	ldi	r24, 0x1B	; 27
+    208a:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	reg_write2F(0x1D, 0x17);          //FS_DVCO: 0x17         Frequency Synthesizer Divider Chain Configuration ..
-    2048:	67 e1       	ldi	r22, 0x17	; 23
-    204a:	8d e1       	ldi	r24, 0x1D	; 29
-    204c:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    208e:	67 e1       	ldi	r22, 0x17	; 23
+    2090:	8d e1       	ldi	r24, 0x1D	; 29
+    2092:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	reg_write2F(0x1F, 0x50);          //FS_PFD: 0x50          Frequency Synthesizer Phase Frequency Detector Con..
-    2050:	60 e5       	ldi	r22, 0x50	; 80
-    2052:	8f e1       	ldi	r24, 0x1F	; 31
-    2054:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    2096:	60 e5       	ldi	r22, 0x50	; 80
+    2098:	8f e1       	ldi	r24, 0x1F	; 31
+    209a:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 //  reg_write2F(0x20, 0x6E);          //FS_PRE: 0x6E          Frequency Synthesizer Prescaler Configuration
   
 	reg_write2F(0x21, 0x14);          //FS_REG_DIV_CML: 0x14  Frequency Synthesizer Divider Regulator Configurat..
-    2058:	64 e1       	ldi	r22, 0x14	; 20
-    205a:	81 e2       	ldi	r24, 0x21	; 33
-    205c:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    209e:	64 e1       	ldi	r22, 0x14	; 20
+    20a0:	81 e2       	ldi	r24, 0x21	; 33
+    20a2:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	reg_write2F(0x22, 0xAC);          //FS_SPARE: 0xAC        Set up Frequency Synthesizer Spare
-    2060:	6c ea       	ldi	r22, 0xAC	; 172
-    2062:	82 e2       	ldi	r24, 0x22	; 34
-    2064:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    20a6:	6c ea       	ldi	r22, 0xAC	; 172
+    20a8:	82 e2       	ldi	r24, 0x22	; 34
+    20aa:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	//reg_write2F(0x27, 0xB4);          //FS_VCO0: 0xB4         FS Voltage Controlled Oscillator Configuration Reg..
 	//reg_write2F(0x32, 0x0E);          //XOSC5: 0x0E           Crystal Oscillator Configuration Reg. 5
 	//reg_write2F(0x36, 0x03);          //XOSC1: 0x03           Crystal Oscillator Configuration Reg. 0
   
 	cmd_str(SNOP);
-    2068:	8d e3       	ldi	r24, 0x3D	; 61
-    206a:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
+    20ae:	8d e3       	ldi	r24, 0x3D	; 61
+    20b0:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
 	//For test purposes only, (2nd block, deleted first one) use values from SmartRF for some bits
 	reg_write(0x08, 0x0B);            //*Changed on line 152
-    206e:	6b e0       	ldi	r22, 0x0B	; 11
-    2070:	88 e0       	ldi	r24, 0x08	; 8
-    2072:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20b4:	6b e0       	ldi	r22, 0x0B	; 11
+    20b6:	88 e0       	ldi	r24, 0x08	; 8
+    20b8:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x13, 0x0D);            //
-    2076:	6d e0       	ldi	r22, 0x0D	; 13
-    2078:	83 e1       	ldi	r24, 0x13	; 19
-    207a:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20bc:	6d e0       	ldi	r22, 0x0D	; 13
+    20be:	83 e1       	ldi	r24, 0x13	; 19
+    20c0:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x26, 0x04);            //*Changed on line 144
-    207e:	64 e0       	ldi	r22, 0x04	; 4
-    2080:	86 e2       	ldi	r24, 0x26	; 38
-    2082:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20c4:	64 e0       	ldi	r22, 0x04	; 4
+    20c6:	86 e2       	ldi	r24, 0x26	; 38
+    20c8:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
   
 	//High performance RX
 	reg_write(0x08, 0x0B);            //
-    2086:	6b e0       	ldi	r22, 0x0B	; 11
-    2088:	88 e0       	ldi	r24, 0x08	; 8
-    208a:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20cc:	6b e0       	ldi	r22, 0x0B	; 11
+    20ce:	88 e0       	ldi	r24, 0x08	; 8
+    20d0:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x0C, 0x1C);            //
-    208e:	6c e1       	ldi	r22, 0x1C	; 28
-    2090:	8c e0       	ldi	r24, 0x0C	; 12
-    2092:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20d4:	6c e1       	ldi	r22, 0x1C	; 28
+    20d6:	8c e0       	ldi	r24, 0x0C	; 12
+    20d8:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x10, 0x00);            //
-    2096:	60 e0       	ldi	r22, 0x00	; 0
-    2098:	80 e1       	ldi	r24, 0x10	; 16
-    209a:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20dc:	60 e0       	ldi	r22, 0x00	; 0
+    20de:	80 e1       	ldi	r24, 0x10	; 16
+    20e0:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x11, 0x04);            //
-    209e:	64 e0       	ldi	r22, 0x04	; 4
-    20a0:	81 e1       	ldi	r24, 0x11	; 17
-    20a2:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20e4:	64 e0       	ldi	r22, 0x04	; 4
+    20e6:	81 e1       	ldi	r24, 0x11	; 17
+    20e8:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x13, 0x05);            //
-    20a6:	65 e0       	ldi	r22, 0x05	; 5
-    20a8:	83 e1       	ldi	r24, 0x13	; 19
-    20aa:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20ec:	65 e0       	ldi	r22, 0x05	; 5
+    20ee:	83 e1       	ldi	r24, 0x13	; 19
+    20f0:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x1C, 0xA9);            //
-    20ae:	69 ea       	ldi	r22, 0xA9	; 169
-    20b0:	8c e1       	ldi	r24, 0x1C	; 28
-    20b2:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20f4:	69 ea       	ldi	r22, 0xA9	; 169
+    20f6:	8c e1       	ldi	r24, 0x1C	; 28
+    20f8:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x1D, 0xCF);            //
-    20b6:	6f ec       	ldi	r22, 0xCF	; 207
-    20b8:	8d e1       	ldi	r24, 0x1D	; 29
-    20ba:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    20fc:	6f ec       	ldi	r22, 0xCF	; 207
+    20fe:	8d e1       	ldi	r24, 0x1D	; 29
+    2100:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x1E, 0x00);            //
-    20be:	60 e0       	ldi	r22, 0x00	; 0
-    20c0:	8e e1       	ldi	r24, 0x1E	; 30
-    20c2:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    2104:	60 e0       	ldi	r22, 0x00	; 0
+    2106:	8e e1       	ldi	r24, 0x1E	; 30
+    2108:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x20, 0x03);            //
-    20c6:	63 e0       	ldi	r22, 0x03	; 3
-    20c8:	80 e2       	ldi	r24, 0x20	; 32
-    20ca:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    210c:	63 e0       	ldi	r22, 0x03	; 3
+    210e:	80 e2       	ldi	r24, 0x20	; 32
+    2110:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x2E, 0x00);            //
-    20ce:	60 e0       	ldi	r22, 0x00	; 0
-    20d0:	8e e2       	ldi	r24, 0x2E	; 46
-    20d2:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    2114:	60 e0       	ldi	r22, 0x00	; 0
+    2116:	8e e2       	ldi	r24, 0x2E	; 46
+    2118:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write2F(0x00, 0x00);          //
-    20d6:	60 e0       	ldi	r22, 0x00	; 0
-    20d8:	80 e0       	ldi	r24, 0x00	; 0
-    20da:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    211c:	60 e0       	ldi	r22, 0x00	; 0
+    211e:	80 e0       	ldi	r24, 0x00	; 0
+    2120:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 
 	//modulation and freq deviation settings
 	reg_write(0x0A, 0b01001000);       //DEVIATION_M: 0x48      set DEV_M to 72 which sets freq deviation to 20.019531kHz (with DEV_M=5)
-    20de:	68 e4       	ldi	r22, 0x48	; 72
-    20e0:	8a e0       	ldi	r24, 0x0A	; 10
-    20e2:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    2124:	68 e4       	ldi	r22, 0x48	; 72
+    2126:	8a e0       	ldi	r24, 0x0A	; 10
+    2128:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x0B, 0b00000101);       //MODCFG_DEV_E: 0x05     set up modulation mode and DEV_E to 5 (see DEV_M register)
-    20e6:	65 e0       	ldi	r22, 0x05	; 5
-    20e8:	8b e0       	ldi	r24, 0x0B	; 11
-    20ea:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    212c:	65 e0       	ldi	r22, 0x05	; 5
+    212e:	8b e0       	ldi	r24, 0x0B	; 11
+    2130:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x21, 0x1B);       //FS_CFG: 0x14           set up LO divider to 8 (410.0 - 480.0 MHz band), out of lock detector enabled
-    20ee:	6b e1       	ldi	r22, 0x1B	; 27
-    20f0:	81 e2       	ldi	r24, 0x21	; 33
-    20f2:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    2134:	6b e1       	ldi	r22, 0x1B	; 27
+    2136:	81 e2       	ldi	r24, 0x21	; 33
+    2138:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
   
 	//set preamble
 	reg_write(0x0D, 0x00);            //PREAMBLE_CFG1: 0x00    No preamble
-    20f6:	60 e0       	ldi	r22, 0x00	; 0
-    20f8:	8d e0       	ldi	r24, 0x0D	; 13
-    20fa:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    213c:	60 e0       	ldi	r22, 0x00	; 0
+    213e:	8d e0       	ldi	r24, 0x0D	; 13
+    2140:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write_bit(0x0E, 5, 0);        //PQT_EN: 0x00           Preamble detection disabled
-    20fe:	40 e0       	ldi	r20, 0x00	; 0
-    2100:	65 e0       	ldi	r22, 0x05	; 5
-    2102:	8e e0       	ldi	r24, 0x0E	; 14
-    2104:	0e 94 a8 0f 	call	0x1f50	; 0x1f50 <reg_write_bit>
+    2144:	40 e0       	ldi	r20, 0x00	; 0
+    2146:	65 e0       	ldi	r22, 0x05	; 5
+    2148:	8e e0       	ldi	r24, 0x0E	; 14
+    214a:	0e 94 cb 0f 	call	0x1f96	; 0x1f96 <reg_write_bit>
   
 	//TOC_LIMIT
 	reg_write_bit2F(0x02, 7, 0);      //TOC_LIMIT: 0x00        Using the low tolerance setting (TOC_LIMIT = 0) greatly reduces system settling times and system power consumption as no preamble bits are needed for bit synchronization or frequency offset compensation (4 bits preamble needed for AGC settling).
-    2108:	40 e0       	ldi	r20, 0x00	; 0
-    210a:	67 e0       	ldi	r22, 0x07	; 7
-    210c:	82 e0       	ldi	r24, 0x02	; 2
-    210e:	0e 94 cf 0f 	call	0x1f9e	; 0x1f9e <reg_write_bit2F>
+    214e:	40 e0       	ldi	r20, 0x00	; 0
+    2150:	67 e0       	ldi	r22, 0x07	; 7
+    2152:	82 e0       	ldi	r24, 0x02	; 2
+    2154:	0e 94 f2 0f 	call	0x1fe4	; 0x1fe4 <reg_write_bit2F>
 	reg_write_bit2F(0x02, 6, 0);      //TOC_LIMIT: 0x00        Using the low tolerance setting (TOC_LIMIT = 0) greatly reduces system settling times and system power consumption as no preamble bits are needed for bit synchronization or frequency offset compensation (4 bits preamble needed for AGC settling).
-    2112:	40 e0       	ldi	r20, 0x00	; 0
-    2114:	66 e0       	ldi	r22, 0x06	; 6
-    2116:	82 e0       	ldi	r24, 0x02	; 2
-    2118:	0e 94 cf 0f 	call	0x1f9e	; 0x1f9e <reg_write_bit2F>
+    2158:	40 e0       	ldi	r20, 0x00	; 0
+    215a:	66 e0       	ldi	r22, 0x06	; 6
+    215c:	82 e0       	ldi	r24, 0x02	; 2
+    215e:	0e 94 f2 0f 	call	0x1fe4	; 0x1fe4 <reg_write_bit2F>
   
 	//set SYNC word
 	reg_write_bit(0x08, 6, 0);        //PQT_GATING_EN: 0       PQT gating disabled (preamble not required)
-    211c:	40 e0       	ldi	r20, 0x00	; 0
-    211e:	66 e0       	ldi	r22, 0x06	; 6
-    2120:	88 e0       	ldi	r24, 0x08	; 8
-    2122:	0e 94 a8 0f 	call	0x1f50	; 0x1f50 <reg_write_bit>
+    2162:	40 e0       	ldi	r20, 0x00	; 0
+    2164:	66 e0       	ldi	r22, 0x06	; 6
+    2166:	88 e0       	ldi	r24, 0x08	; 8
+    2168:	0e 94 cb 0f 	call	0x1f96	; 0x1f96 <reg_write_bit>
 	reg_write(0x09, 0x17);            //SYNC_CFG0: 0x17        32 bit SYNC word. Bit error qualifier disabled. No check on bit errors
-    2126:	67 e1       	ldi	r22, 0x17	; 23
-    2128:	89 e0       	ldi	r24, 0x09	; 9
-    212a:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    216c:	67 e1       	ldi	r22, 0x17	; 23
+    216e:	89 e0       	ldi	r24, 0x09	; 9
+    2170:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
   
 	//set packets
 	reg_write(0x26, 0x00);            //PKT_CFG2: 0x00         set FIFO mode
-    212e:	60 e0       	ldi	r22, 0x00	; 0
-    2130:	86 e2       	ldi	r24, 0x26	; 38
-    2132:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    2174:	60 e0       	ldi	r22, 0x00	; 0
+    2176:	86 e2       	ldi	r24, 0x26	; 38
+    2178:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	reg_write(0x2E, 0xFF);            //PKT_LEN: 0xFF          set packet length to 0xFF (max)  
-    2136:	6f ef       	ldi	r22, 0xFF	; 255
-    2138:	8e e2       	ldi	r24, 0x2E	; 46
-    213a:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    217c:	6f ef       	ldi	r22, 0xFF	; 255
+    217e:	8e e2       	ldi	r24, 0x2E	; 46
+    2180:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
     
 	
 	reg_write(0x28, 0b01000000);
-    213e:	60 e4       	ldi	r22, 0x40	; 64
-    2140:	88 e2       	ldi	r24, 0x28	; 40
-    2142:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
+    2184:	60 e4       	ldi	r22, 0x40	; 64
+    2186:	88 e2       	ldi	r24, 0x28	; 40
+    2188:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
 	
 	
 	//Frequency setting
 	cmd_str(SNOP);
-    2146:	8d e3       	ldi	r24, 0x3D	; 61
-    2148:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
+    218c:	8d e3       	ldi	r24, 0x3D	; 61
+    218e:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
 	reg_write2F(0x0C, 0x65);          //FREQ2: 0x6C            set frequency to 434MHz (sets Vco, see equation from FREQ2 section of user guide)
-    214c:	65 e6       	ldi	r22, 0x65	; 101
-    214e:	8c e0       	ldi	r24, 0x0C	; 12
-    2150:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    2192:	65 e6       	ldi	r22, 0x65	; 101
+    2194:	8c e0       	ldi	r24, 0x0C	; 12
+    2196:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 	reg_write2F(0x0D, 0x40);          //FREQ1: 0x80
-    2154:	60 e4       	ldi	r22, 0x40	; 64
-    2156:	8d e0       	ldi	r24, 0x0D	; 13
-    2158:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    219a:	60 e4       	ldi	r22, 0x40	; 64
+    219c:	8d e0       	ldi	r24, 0x0D	; 13
+    219e:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
 
 	//set up GPIO1 to 17
 	//reg_write(0x00, 17);
 	
 	//strobe commands to start RX
 	cmd_str(SCAL);                   // Calibrate frequency synthesizer
-    215c:	83 e3       	ldi	r24, 0x33	; 51
-    215e:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
+    21a2:	83 e3       	ldi	r24, 0x33	; 51
+    21a4:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
 	delay_ms(250);
-    2162:	8a ef       	ldi	r24, 0xFA	; 250
-    2164:	90 e0       	ldi	r25, 0x00	; 0
-    2166:	0e 94 0c 0f 	call	0x1e18	; 0x1e18 <delay_ms>
+    21a8:	8a ef       	ldi	r24, 0xFA	; 250
+    21aa:	90 e0       	ldi	r25, 0x00	; 0
+    21ac:	0e 94 0c 0f 	call	0x1e18	; 0x1e18 <delay_ms>
 
 	cmd_str(SAFC);					 // Automatic frequency control
-    216a:	87 e3       	ldi	r24, 0x37	; 55
-    216c:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
+    21b0:	87 e3       	ldi	r24, 0x37	; 55
+    21b2:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
 	delay_ms(250);
-    2170:	8a ef       	ldi	r24, 0xFA	; 250
-    2172:	90 e0       	ldi	r25, 0x00	; 0
-    2174:	0e 94 0c 0f 	call	0x1e18	; 0x1e18 <delay_ms>
+    21b6:	8a ef       	ldi	r24, 0xFA	; 250
+    21b8:	90 e0       	ldi	r25, 0x00	; 0
+    21ba:	0e 94 0c 0f 	call	0x1e18	; 0x1e18 <delay_ms>
 	
 	//reg_write2F(0xD2, 0x00);
 	//reg_write2F(0xD4, 0xFF);
 	
 	msg_received = 0;
-    2178:	10 92 ad 03 	sts	0x03AD, r1
+    21be:	10 92 ad 03 	sts	0x03AD, r1
 
 	cmd_str(SRX);                    // Put in RX mode
-    217c:	84 e3       	ldi	r24, 0x34	; 52
-    217e:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
-    2182:	08 95       	ret
+    21c2:	84 e3       	ldi	r24, 0x34	; 52
+    21c4:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
+    21c8:	08 95       	ret
 
-00002184 <test2>:
+000021ca <test>:
+		cmd_str(SRX);
+	}
+	return;
+}
+
+void test(){
+    21ca:	1f 93       	push	r17
+    21cc:	cf 93       	push	r28
+    21ce:	df 93       	push	r29
+    21d0:	c5 eb       	ldi	r28, 0xB5	; 181
+    21d2:	d3 e0       	ldi	r29, 0x03	; 3
+    21d4:	10 e0       	ldi	r17, 0x00	; 0
+	if(dir_FIFO_read(0)!=0x05)
+		PIN_toggle(LED3);*/
+	
+    
+    for(int i=0x00; i<128; i++){
+	    dir_FIFO_write(i, message[i]);
+    21d6:	69 91       	ld	r22, Y+
+    21d8:	81 2f       	mov	r24, r17
+    21da:	0e 94 a8 0f 	call	0x1f50	; 0x1f50 <dir_FIFO_write>
+    21de:	1f 5f       	subi	r17, 0xFF	; 255
+	/*dir_FIFO_write(0,0x05);
+	if(dir_FIFO_read(0)!=0x05)
+		PIN_toggle(LED3);*/
+	
+    
+    for(int i=0x00; i<128; i++){
+    21e0:	10 38       	cpi	r17, 0x80	; 128
+    21e2:	c9 f7       	brne	.-14     	; 0x21d6 <test+0xc>
+	    dir_FIFO_write(i, message[i]);
+    }
+    
+    reg_write2F(0xD3, 0x00);
+    21e4:	60 e0       	ldi	r22, 0x00	; 0
+    21e6:	83 ed       	ldi	r24, 0xD3	; 211
+    21e8:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
+    reg_write2F(0xD5, 0x7F);
+    21ec:	6f e7       	ldi	r22, 0x7F	; 127
+    21ee:	85 ed       	ldi	r24, 0xD5	; 213
+    21f0:	0e 94 85 0f 	call	0x1f0a	; 0x1f0a <reg_write2F>
     
     cmd_str(STX);
+    21f4:	85 e3       	ldi	r24, 0x35	; 53
+    21f6:	0e 94 7a 0f 	call	0x1ef4	; 0x1ef4 <cmd_str>
                  //put in TX mode
 }
-void test2(){
-	reg_write(0x12,0x12);
-    2184:	62 e1       	ldi	r22, 0x12	; 18
-    2186:	82 e1       	ldi	r24, 0x12	; 18
-    2188:	0e 94 42 0f 	call	0x1e84	; 0x1e84 <reg_write>
-	reg_read(0x12);
-    218c:	82 e1       	ldi	r24, 0x12	; 18
-    218e:	0e 94 29 0f 	call	0x1e52	; 0x1e52 <reg_read>
-    2192:	08 95       	ret
+    21fa:	df 91       	pop	r29
+    21fc:	cf 91       	pop	r28
+    21fe:	1f 91       	pop	r17
+    2200:	08 95       	ret
 
-00002194 <__tablejump2__>:
-    2194:	ee 0f       	add	r30, r30
-    2196:	ff 1f       	adc	r31, r31
+00002202 <__tablejump2__>:
+    2202:	ee 0f       	add	r30, r30
+    2204:	ff 1f       	adc	r31, r31
 
-00002198 <__tablejump__>:
-    2198:	05 90       	lpm	r0, Z+
-    219a:	f4 91       	lpm	r31, Z
-    219c:	e0 2d       	mov	r30, r0
-    219e:	09 94       	ijmp
+00002206 <__tablejump__>:
+    2206:	05 90       	lpm	r0, Z+
+    2208:	f4 91       	lpm	r31, Z
+    220a:	e0 2d       	mov	r30, r0
+    220c:	09 94       	ijmp
 
-000021a0 <_exit>:
-    21a0:	f8 94       	cli
+0000220e <_exit>:
+    220e:	f8 94       	cli
 
-000021a2 <__stop_program>:
-    21a2:	ff cf       	rjmp	.-2      	; 0x21a2 <__stop_program>
+00002210 <__stop_program>:
+    2210:	ff cf       	rjmp	.-2      	; 0x2210 <__stop_program>

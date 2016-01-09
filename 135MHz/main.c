@@ -132,8 +132,15 @@ int main(void)
 			//if(!receiving_tmf)
 			//	trans_check();		// Check for incoming packets.	
 			//check_obc_alive();
-			//test();
+			
+			/************************************************************************/
+			/* test1 for transmitting, test2 for reading a register                 */
+			/************************************************************************/
+			
+			//test1();
 			test2();
+			
+			
 			delay_ms(100);
 		}
 		if(SELF_ID == 1)

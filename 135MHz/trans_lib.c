@@ -561,7 +561,8 @@ void trans_check(void)
 	return;
 }
 
-void test(){
+void test1() //Used for test transmitting
+{
 	//reg_write2F(0x0C, 0x6C);
 	//cmd_str(SIDLE);
 	/*dir_FIFO_write(0,0x05);
@@ -579,7 +580,8 @@ void test(){
     cmd_str(STX);
                  //put in TX mode
 }
-void test2(){
-	reg_write(0x12,0x12);
+void test2() //Used for test reading a register
+{
+	reg_write(0x12,0x13);
 	reg_read(0x12);
 }

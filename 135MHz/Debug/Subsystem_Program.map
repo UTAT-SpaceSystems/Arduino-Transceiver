@@ -185,12 +185,10 @@ Discarded input sections
                 0x00000000       0x1a trans_lib.o
  .text.dir_FIFO_read
                 0x00000000       0x44 trans_lib.o
- .text.dir_FIFO_write
-                0x00000000       0x46 trans_lib.o
  .text.set_CSn  0x00000000       0x10 trans_lib.o
  .text.trans_check
                 0x00000000       0x8a trans_lib.o
- .text.test     0x00000000       0x38 trans_lib.o
+ .text.test2    0x00000000       0x10 trans_lib.o
  .bss.message_counter
                 0x00000000        0x2 trans_lib.o
  .text          0x00000000        0x0 f:/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
@@ -369,7 +367,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x21a4
+.text           0x00000000     0x2212
  *(.vectors)
  .vectors       0x00000000       0x7c f:/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5/crtm32m1.o
                 0x00000000                __vector_default
@@ -593,25 +591,28 @@ END GROUP
  .text.reg_write2F
                 0x00001f0a       0x46 trans_lib.o
                 0x00001f0a                reg_write2F
+ .text.dir_FIFO_write
+                0x00001f50       0x46 trans_lib.o
+                0x00001f50                dir_FIFO_write
  .text.reg_write_bit
-                0x00001f50       0x4e trans_lib.o
-                0x00001f50                reg_write_bit
+                0x00001f96       0x4e trans_lib.o
+                0x00001f96                reg_write_bit
  .text.reg_write_bit2F
-                0x00001f9e       0x4e trans_lib.o
-                0x00001f9e                reg_write_bit2F
+                0x00001fe4       0x4e trans_lib.o
+                0x00001fe4                reg_write_bit2F
  .text.transceiver_initialize
-                0x00001fec      0x198 trans_lib.o
-                0x00001fec                transceiver_initialize
- .text.test2    0x00002184       0x10 trans_lib.o
-                0x00002184                test2
- .text.libgcc   0x00002194        0xc f:/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_tablejump.o)
-                0x00002194                __tablejump2__
-                0x00002198                __tablejump__
-                0x000021a0                . = ALIGN (0x2)
+                0x00002032      0x198 trans_lib.o
+                0x00002032                transceiver_initialize
+ .text.test     0x000021ca       0x38 trans_lib.o
+                0x000021ca                test
+ .text.libgcc   0x00002202        0xc f:/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_tablejump.o)
+                0x00002202                __tablejump2__
+                0x00002206                __tablejump__
+                0x0000220e                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000021a0        0x0 f:/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
-                0x000021a0                _exit
-                0x000021a0                exit
+ .fini9         0x0000220e        0x0 f:/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
+                0x0000220e                _exit
+                0x0000220e                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -630,11 +631,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000021a0        0x4 f:/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
+ .fini0         0x0000220e        0x4 f:/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x000021a4                _etext = .
+                0x00002212                _etext = .
 
-.data           0x00800100        0x0 load address 0x000021a4
+.data           0x00800100        0x0 load address 0x00002212
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -737,8 +738,8 @@ END GROUP
  COMMON         0x008003b5       0x80 trans_lib.o
                 0x008003b5                message
                 0x00800435                PROVIDE (__bss_end, .)
-                0x000021a4                __data_load_start = LOADADDR (.data)
-                0x000021a4                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00002212                __data_load_start = LOADADDR (.data)
+                0x00002212                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800435        0x0
                 0x00800435                PROVIDE (__noinit_start, .)
@@ -921,15 +922,15 @@ END GROUP
                                 0x783 (size before relaxing)
  .debug_str     0x000009d8       0x2d comsTimer.o
                                 0x49b (size before relaxing)
- .debug_str     0x00000a05       0xbc main.o
-                                0x654 (size before relaxing)
- .debug_str     0x00000ac1       0x1a port.o
+ .debug_str     0x00000a05       0xbb main.o
+                                0x653 (size before relaxing)
+ .debug_str     0x00000ac0       0x1a port.o
                                 0x184 (size before relaxing)
- .debug_str     0x00000adb       0x75 spi_lib.o
+ .debug_str     0x00000ada       0x75 spi_lib.o
                                 0x544 (size before relaxing)
- .debug_str     0x00000b50       0x19 Timer.o
+ .debug_str     0x00000b4f       0x19 Timer.o
                                 0x1ab (size before relaxing)
- .debug_str     0x00000b69       0xce trans_lib.o
+ .debug_str     0x00000b68       0xcf trans_lib.o
                                 0x5bb (size before relaxing)
 
 .debug_loc      0x00000000     0x296b
